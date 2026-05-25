@@ -100,7 +100,7 @@ public partial class MainWindow : Window
 
     private void UndoButton_Click(object sender, RoutedEventArgs e)
     {
-        AddLog("撤销功能将在后续版本加入；本次操作已写入日志");
+        AddLog("暂无可撤销操作；请根据日志核对结果");
     }
 
     private void RefreshCurrentFolder()
