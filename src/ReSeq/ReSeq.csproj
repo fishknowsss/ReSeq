@@ -4,12 +4,24 @@
     <ProjectReference Include="..\ReSeq.Core\ReSeq.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="Assets\ReSeq.ico" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\ReSeq.ico</ApplicationIcon>
+    <AssemblyName>ReSeq</AssemblyName>
+    <Product>ReSeq</Product>
+    <Description>短剧视频分镜版本管理器</Description>
+    <Company>fishknowsss</Company>
+    <Version>0.2.0</Version>
+    <FileVersion>0.2.0.0</FileVersion>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
   </PropertyGroup>
 
 </Project>

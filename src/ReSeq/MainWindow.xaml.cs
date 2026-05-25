@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using Microsoft.Win32;
 using ReSeq.Core.Models;
 using ReSeq.Core.Services;
@@ -17,8 +18,21 @@ namespace ReSeq;
 
 public partial class MainWindow : Window
 {
-    private const double TileWidth = 184;
-    private const double TileHeight = 150;
+    private const double TileWidth = 204;
+    private const double TileHeight = 172;
+    private const double ThumbnailWidth = 188;
+    private const double ThumbnailHeight = 106;
+
+    private static readonly SolidColorBrush InkBrush = Brush("#17202B");
+    private static readonly SolidColorBrush MutedBrush = Brush("#596779");
+    private static readonly SolidColorBrush SubtleBrush = Brush("#7B8797");
+    private static readonly SolidColorBrush LineBrush = Brush("#D7DEE8");
+    private static readonly SolidColorBrush SoftLineBrush = Brush("#E7ECF3");
+    private static readonly SolidColorBrush PanelBrush = Brush("#FFFFFF");
+    private static readonly SolidColorBrush EmptyBrush = Brush("#F8FAFC");
+    private static readonly SolidColorBrush AccentBrush = Brush("#2563EB");
+    private static readonly SolidColorBrush AccentSoftBrush = Brush("#E7F0FF");
+    private static readonly SolidColorBrush GreenBrush = Brush("#16A34A");
 
     private readonly VideoScanner _scanner = new();
     private readonly RenamePlanner _planner = new();
@@ -40,6 +54,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         PreviewList.ItemsSource = _previewItems;
         LogList.ItemsSource = _logItems;
+        ResetSummary();
         BuildWorkspace();
     }
 
@@ -72,7 +87,7 @@ public partial class MainWindow : Window
 
         var answer = MessageBox.Show(
             this,
-            "确认执行预览中的重命名？",
+            "确认执行右侧预览中的重命名？",
             "执行重命名",
             MessageBoxButton.OKCancel,
             MessageBoxImage.Warning);
@@ -82,6 +97,7 @@ public partial class MainWindow : Window
             return;
         }
 
+        SetStatus("正在执行重命名");
         var result = _executor.Execute(_pendingPlan);
         foreach (var message in result.Messages)
         {
@@ -100,7 +116,7 @@ public partial class MainWindow : Window
 
     private void UndoButton_Click(object sender, RoutedEventArgs e)
     {
-        AddLog("暂无可撤销操作；请根据日志核对结果");
+        AddLog("暂无可撤销操作，请根据日志核对结果");
     }
 
     private void RefreshCurrentFolder()
@@ -111,8 +127,10 @@ public partial class MainWindow : Window
         if (string.IsNullOrWhiteSpace(_currentFolder))
         {
             FolderPathText.Text = "未选择文件夹";
-            DropHintText.Text = "先选择文件夹";
+            DropHintText.Text = "选择文件夹后，将视频拖到网格位置";
             AddLog("请先选择文件夹");
+            SetStatus("先选择文件夹");
+            ResetSummary();
             BuildWorkspace();
             return;
         }
@@ -121,7 +139,12 @@ public partial class MainWindow : Window
         {
             _scanResult = _scanner.Scan(_currentFolder);
             FolderPathText.Text = _currentFolder;
-            DropHintText.Text = "拖入一个视频到网格中";
+            DropHintText.Text = "拖入一个视频到网格中的目标位置";
+
+            var shotCount = _scanResult.Videos.Select(item => item.X).Distinct().Count();
+            var versionCount = _scanResult.Videos.Select(item => item.Y).Distinct().Count();
+            var issueCount = _scanResult.InvalidFiles.Count + _scanResult.DuplicateGroups.Count + _scanResult.TempFiles.Count;
+            UpdateSummary(_scanResult.Videos.Count, shotCount, versionCount, issueCount);
 
             AddLog($"扫描完成：{_scanResult.Videos.Count} 个有效视频");
             foreach (var invalid in _scanResult.InvalidFiles)
@@ -144,12 +167,15 @@ public partial class MainWindow : Window
                 AddLog("没有符合规则的视频，可拖入一个视频生成 1-1");
             }
 
+            SetStatus(issueCount == 0 ? "就绪" : "存在需要处理的问题");
             BuildWorkspace();
         }
         catch (Exception ex)
         {
             _scanResult = null;
             AddLog($"扫描失败：{ex.Message}");
+            SetStatus("扫描失败");
+            ResetSummary();
             BuildWorkspace();
         }
     }
@@ -179,21 +205,21 @@ public partial class MainWindow : Window
             .GroupBy(item => (item.X, item.Y))
             .ToDictionary(group => group.Key, group => group.First());
 
-        WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(74) });
+        WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(78) });
         for (var y = 1; y <= maxY; y++)
         {
-            WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(12) });
+            WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(18) });
             WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(TileWidth + 16) });
         }
 
-        WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(38) });
+        WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(44) });
         for (var x = 1; x <= maxX; x++)
         {
-            WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(12) });
+            WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(18) });
             WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(TileHeight + 16) });
         }
 
-        AddHeaderCell("", 0, 0);
+        AddCornerHeader();
         for (var y = 1; y <= maxY; y++)
         {
             AddHeaderCell($"Y={y}", 0, CellColumn(y));
@@ -226,13 +252,22 @@ public partial class MainWindow : Window
     {
         WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        WorkspaceGrid.Children.Add(new TextBlock
+        WorkspaceGrid.Children.Add(new Border
         {
-            Text = text,
-            FontSize = 18,
-            Foreground = new SolidColorBrush(Color.FromRgb(67, 82, 100)),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
+            Width = 520,
+            Height = 260,
+            Background = PanelBrush,
+            BorderBrush = LineBrush,
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(18),
+            Child = new TextBlock
+            {
+                Text = text,
+                FontSize = 18,
+                Foreground = MutedBrush,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            }
         });
     }
 
@@ -243,51 +278,101 @@ public partial class MainWindow : Window
 
         var target = new DropTarget(DropTargetKind.EmptyCell, 1, 1, null);
         var border = CreateDropBorder(target);
-        border.MinWidth = 520;
-        border.MinHeight = 300;
-        border.Background = Brushes.White;
-        border.BorderBrush = new SolidColorBrush(Color.FromRgb(216, 222, 232));
+        border.Width = 560;
+        border.Height = 320;
+        border.Background = PanelBrush;
+        border.BorderBrush = LineBrush;
         border.BorderThickness = new Thickness(1);
-        border.Child = new TextBlock
+        border.CornerRadius = new CornerRadius(20);
+        border.Effect = new DropShadowEffect
         {
-            Text = "拖入一个视频，命名为 1-1",
-            FontSize = 18,
-            Foreground = new SolidColorBrush(Color.FromRgb(67, 82, 100)),
+            BlurRadius = 24,
+            ShadowDepth = 8,
+            Opacity = 0.08,
+            Color = Color.FromRgb(23, 32, 43)
+        };
+
+        var panel = new StackPanel
+        {
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center
         };
+        panel.Children.Add(new TextBlock
+        {
+            Text = "拖入一个视频",
+            FontSize = 22,
+            FontWeight = FontWeights.SemiBold,
+            Foreground = InkBrush,
+            HorizontalAlignment = HorizontalAlignment.Center
+        });
+        panel.Children.Add(new TextBlock
+        {
+            Text = "将命名为 1-1",
+            FontSize = 15,
+            Foreground = MutedBrush,
+            Margin = new Thickness(0, 8, 0, 0),
+            HorizontalAlignment = HorizontalAlignment.Center
+        });
+        border.Child = panel;
         WorkspaceGrid.Children.Add(border);
+    }
+
+    private void AddCornerHeader()
+    {
+        var block = new TextBlock
+        {
+            Text = "镜头",
+            FontSize = 13,
+            Foreground = SubtleBrush,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        Grid.SetRow(block, 0);
+        Grid.SetColumn(block, 0);
+        WorkspaceGrid.Children.Add(block);
     }
 
     private void AddHeaderCell(string text, int row, int column)
     {
-        var block = new TextBlock
+        var border = new Border
         {
-            Text = text,
-            FontSize = 15,
-            FontWeight = FontWeights.SemiBold,
-            Foreground = new SolidColorBrush(Color.FromRgb(32, 36, 42)),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
+            Height = 30,
+            MinWidth = 78,
+            Background = PanelBrush,
+            BorderBrush = SoftLineBrush,
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(999),
+            Child = new TextBlock
+            {
+                Text = text,
+                FontSize = 14,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = InkBrush,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            }
         };
-        Grid.SetRow(block, row);
-        Grid.SetColumn(block, column);
-        WorkspaceGrid.Children.Add(block);
+        Grid.SetRow(border, row);
+        Grid.SetColumn(border, column);
+        WorkspaceGrid.Children.Add(border);
     }
 
     private void AddRowHeader(int x, int row)
     {
         var border = new Border
         {
-            Width = 64,
-            Height = 42,
-            Background = Brushes.Transparent,
+            Width = 62,
+            Height = 40,
+            Background = PanelBrush,
+            BorderBrush = SoftLineBrush,
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(999),
             Child = new TextBlock
             {
                 Text = $"X={x}",
-                FontSize = 15,
+                FontSize = 14,
                 FontWeight = FontWeights.SemiBold,
-                Foreground = new SolidColorBrush(Color.FromRgb(32, 36, 42)),
+                Foreground = InkBrush,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             }
@@ -305,9 +390,10 @@ public partial class MainWindow : Window
         border.BorderThickness = new Thickness(0);
         border.Child = new Border
         {
-            Height = 2,
-            Margin = new Thickness(4, 5, 4, 5),
-            Background = Brushes.Transparent
+            Height = 3,
+            Margin = new Thickness(8, 7, 8, 7),
+            Background = Brushes.Transparent,
+            CornerRadius = new CornerRadius(3)
         };
         Grid.SetRow(border, row);
         Grid.SetColumn(border, 0);
@@ -323,9 +409,10 @@ public partial class MainWindow : Window
         border.BorderThickness = new Thickness(0);
         border.Child = new Border
         {
-            Width = 2,
-            Margin = new Thickness(5, 8, 5, 8),
-            Background = Brushes.Transparent
+            Width = 3,
+            Margin = new Thickness(7, 8, 7, 8),
+            Background = Brushes.Transparent,
+            CornerRadius = new CornerRadius(3)
         };
         Grid.SetRow(border, row);
         Grid.SetColumn(border, column);
@@ -339,11 +426,18 @@ public partial class MainWindow : Window
         var border = CreateDropBorder(target);
         border.Width = TileWidth;
         border.Height = TileHeight;
-        border.Background = Brushes.White;
-        border.BorderBrush = new SolidColorBrush(Color.FromRgb(210, 217, 226));
+        border.Background = PanelBrush;
+        border.BorderBrush = SoftLineBrush;
         border.BorderThickness = new Thickness(1);
-        border.CornerRadius = new CornerRadius(8);
+        border.CornerRadius = new CornerRadius(14);
         border.Padding = new Thickness(8);
+        border.Effect = new DropShadowEffect
+        {
+            BlurRadius = 18,
+            ShadowDepth = 6,
+            Opacity = 0.06,
+            Color = Color.FromRgb(23, 32, 43)
+        };
         border.Child = CreateVideoCard(tile);
         Grid.SetRow(border, row);
         Grid.SetColumn(border, column);
@@ -354,11 +448,14 @@ public partial class MainWindow : Window
 
     private UIElement CreateVideoCard(VideoTileViewModel tile)
     {
-        var panel = new StackPanel();
+        var root = new Grid();
+        root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ThumbnailHeight) });
+        root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
         var image = new Image
         {
-            Width = 168,
-            Height = 94,
+            Width = ThumbnailWidth,
+            Height = ThumbnailHeight,
             Stretch = Stretch.UniformToFill,
             Source = tile.Thumbnail
         };
@@ -371,36 +468,91 @@ public partial class MainWindow : Window
             }
         };
 
-        panel.Children.Add(new Border
+        var thumbHost = new Border
         {
-            Width = 168,
-            Height = 94,
-            Background = new SolidColorBrush(Color.FromRgb(232, 237, 244)),
+            Width = ThumbnailWidth,
+            Height = ThumbnailHeight,
+            Background = Brush("#E8EEF5"),
+            CornerRadius = new CornerRadius(10),
             ClipToBounds = true,
             Child = image
-        });
-        panel.Children.Add(new TextBlock
+        };
+        Grid.SetRow(thumbHost, 0);
+        root.Children.Add(thumbHost);
+
+        var badge = new Border
+        {
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Background = Brush("#17202B"),
+            CornerRadius = new CornerRadius(999),
+            Padding = new Thickness(8, 3, 8, 4),
+            Margin = new Thickness(8),
+            Child = new TextBlock
+            {
+                Text = tile.Item.Number,
+                Foreground = Brushes.White,
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold
+            }
+        };
+        Grid.SetRow(badge, 0);
+        root.Children.Add(badge);
+
+        var meta = new Grid
+        {
+            Margin = new Thickness(2, 8, 2, 0)
+        };
+        meta.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        meta.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        meta.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        meta.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+        var fileName = new TextBlock
         {
             Text = tile.FileName,
             FontSize = 14,
             FontWeight = FontWeights.SemiBold,
-            Foreground = new SolidColorBrush(Color.FromRgb(32, 36, 42)),
-            TextTrimming = TextTrimming.CharacterEllipsis,
-            Margin = new Thickness(0, 8, 0, 2)
-        });
-        panel.Children.Add(new TextBlock
+            Foreground = InkBrush,
+            TextTrimming = TextTrimming.CharacterEllipsis
+        };
+        Grid.SetRow(fileName, 0);
+        Grid.SetColumn(fileName, 0);
+        meta.Children.Add(fileName);
+
+        var extension = new Border
+        {
+            Background = Brush("#EEF2F6"),
+            CornerRadius = new CornerRadius(999),
+            Padding = new Thickness(7, 2, 7, 3),
+            Margin = new Thickness(8, 0, 0, 0),
+            Child = new TextBlock
+            {
+                Text = tile.ExtensionText.TrimStart('.').ToUpperInvariant(),
+                Foreground = MutedBrush,
+                FontSize = 11,
+                FontWeight = FontWeights.SemiBold
+            }
+        };
+        Grid.SetRow(extension, 0);
+        Grid.SetColumn(extension, 1);
+        meta.Children.Add(extension);
+
+        var number = new TextBlock
         {
             Text = tile.NumberText,
-            FontSize = 13,
-            Foreground = new SolidColorBrush(Color.FromRgb(67, 82, 100))
-        });
-        panel.Children.Add(new TextBlock
-        {
-            Text = tile.ExtensionText,
-            FontSize = 13,
-            Foreground = new SolidColorBrush(Color.FromRgb(67, 82, 100))
-        });
-        return panel;
+            FontSize = 12,
+            Foreground = MutedBrush,
+            Margin = new Thickness(0, 4, 0, 0)
+        };
+        Grid.SetRow(number, 1);
+        Grid.SetColumn(number, 0);
+        Grid.SetColumnSpan(number, 2);
+        meta.Children.Add(number);
+
+        Grid.SetRow(meta, 1);
+        root.Children.Add(meta);
+        return root;
     }
 
     private void AddEmptyCell(int x, int y, int row, int column)
@@ -409,17 +561,17 @@ public partial class MainWindow : Window
         var border = CreateDropBorder(target);
         border.Width = TileWidth;
         border.Height = TileHeight;
-        border.Background = new SolidColorBrush(Color.FromRgb(251, 252, 253));
-        border.BorderBrush = new SolidColorBrush(Color.FromRgb(226, 231, 238));
+        border.Background = EmptyBrush;
+        border.BorderBrush = SoftLineBrush;
         border.BorderThickness = new Thickness(1);
-        border.CornerRadius = new CornerRadius(8);
-        border.Child = new TextBlock
+        border.CornerRadius = new CornerRadius(14);
+        border.Child = new Border
         {
-            Text = "空",
-            FontSize = 15,
-            Foreground = new SolidColorBrush(Color.FromRgb(122, 132, 148)),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
+            Margin = new Thickness(12),
+            BorderBrush = Brush("#DDE5EF"),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(10),
+            Opacity = 0.55
         };
         Grid.SetRow(border, row);
         Grid.SetColumn(border, column);
@@ -456,13 +608,13 @@ public partial class MainWindow : Window
         if (!CanAcceptDrop(e, out _, out var error))
         {
             e.Effects = DragDropEffects.None;
-            DropHintText.Text = error;
+            SetDropHint(error, isError: true);
             e.Handled = true;
             return;
         }
 
         HighlightBorder(border, target);
-        DropHintText.Text = GetDropHint(target);
+        SetDropHint(GetDropHint(target));
         e.Effects = DragDropEffects.Move;
         e.Handled = true;
     }
@@ -501,7 +653,7 @@ public partial class MainWindow : Window
         if (!CanAcceptDrop(e, out _, out var error))
         {
             e.Effects = DragDropEffects.None;
-            DropHintText.Text = error;
+            SetDropHint(error, isError: true);
             e.Handled = true;
         }
     }
@@ -568,9 +720,12 @@ public partial class MainWindow : Window
 
     private void ShowExistingVideoMenu(Border border, DropTarget target, string filePath)
     {
-        var menu = new ContextMenu();
-        var before = new MenuItem { Header = "放到前面" };
-        var after = new MenuItem { Header = "放到后面" };
+        var menu = new ContextMenu
+        {
+            FontSize = 14
+        };
+        var before = new MenuItem { Header = "放前面" };
+        var after = new MenuItem { Header = "放后面" };
         var cancel = new MenuItem { Header = "取消" };
 
         before.Click += (_, _) => CreatePreview(new DropTarget(DropTargetKind.Version, target.X, target.Y, null), filePath);
@@ -620,7 +775,7 @@ public partial class MainWindow : Window
 
         foreach (var operation in plan.Operations)
         {
-            _previewItems.Add($"{operation.OldName} -> {operation.NewName}");
+            _previewItems.Add($"{operation.OldName}  ->  {operation.NewName}");
         }
 
         if (_previewItems.Count == 0 && plan.Errors.Count == 0)
@@ -629,6 +784,8 @@ public partial class MainWindow : Window
         }
 
         ExecuteButton.IsEnabled = plan.CanExecute;
+        PlanStatusText.Text = plan.CanExecute ? $"{plan.Operations.Count} 项" : "不可执行";
+        SetStatus(plan.CanExecute ? "已生成预览，请确认后执行" : "预览不可执行");
         AddLog(plan.CanExecute ? "已生成预览，请确认后执行" : "预览不可执行");
     }
 
@@ -637,6 +794,7 @@ public partial class MainWindow : Window
         _pendingPlan = null;
         _previewItems.Clear();
         ExecuteButton.IsEnabled = false;
+        PlanStatusText.Text = "无计划";
     }
 
     private void HighlightBorder(Border border, DropTarget target)
@@ -650,23 +808,20 @@ public partial class MainWindow : Window
             _highlightedThickness = border.BorderThickness;
         }
 
-        var blue = new SolidColorBrush(Color.FromRgb(47, 111, 237));
-        var paleBlue = new SolidColorBrush(Color.FromArgb(40, 47, 111, 237));
-
         if (target.Kind == DropTargetKind.ShotRow && border.Child is Border horizontalLine)
         {
-            horizontalLine.Background = blue;
-            border.Background = paleBlue;
+            horizontalLine.Background = AccentBrush;
+            border.Background = AccentSoftBrush;
         }
         else if (target.Kind == DropTargetKind.Version && border.Child is Border verticalLine)
         {
-            verticalLine.Background = blue;
-            border.Background = paleBlue;
+            verticalLine.Background = AccentBrush;
+            border.Background = AccentSoftBrush;
         }
         else
         {
-            border.Background = paleBlue;
-            border.BorderBrush = blue;
+            border.Background = AccentSoftBrush;
+            border.BorderBrush = AccentBrush;
             border.BorderThickness = new Thickness(2);
         }
     }
@@ -697,16 +852,51 @@ public partial class MainWindow : Window
             DropTargetKind.ShotRow => $"插入新镜头到 X={target.X} 之前",
             DropTargetKind.Version => $"插入为 X={target.X}, Y={target.Y} 的新版本",
             DropTargetKind.EmptyCell => $"命名为 {target.X}-{target.Y}",
-            DropTargetKind.ExistingVideo => "选择放到前面或后面",
+            DropTargetKind.ExistingVideo => "选择放前面或放后面",
             _ => "拖入一个视频到网格中"
         };
+    }
+
+    private void SetDropHint(string message, bool isError = false)
+    {
+        DropHintText.Text = message;
+        DropHintText.Foreground = isError ? Brush("#B42318") : InkBrush;
+    }
+
+    private void SetStatus(string message)
+    {
+        StatusText.Text = message;
     }
 
     private void AddLog(string message)
     {
         var line = $"{DateTime.Now:HH:mm:ss}  {message}";
         _logItems.Add(line);
+        LogStatusText.Text = $"{_logItems.Count} 条";
         LogList.ScrollIntoView(line);
+    }
+
+    private void UpdateSummary(int videoCount, int shotCount, int versionCount, int issueCount)
+    {
+        VideoCountText.Text = $"视频 {videoCount}";
+        ShotCountText.Text = $"镜头 {shotCount}";
+        VersionCountText.Text = $"版本 {versionCount}";
+        IssueCountText.Text = $"问题 {issueCount}";
+        IssueCountText.Foreground = issueCount > 0 ? Brush("#B42318") : MutedBrush;
+    }
+
+    private void ResetSummary()
+    {
+        UpdateSummary(0, 0, 0, 0);
+        PlanStatusText.Text = "无计划";
+        LogStatusText.Text = "就绪";
+    }
+
+    private static SolidColorBrush Brush(string color)
+    {
+        var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
+        brush.Freeze();
+        return brush;
     }
 
     private static int SeparatorColumn(int y) => 1 + (y - 1) * 2;

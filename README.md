@@ -19,6 +19,24 @@ ReSeq 是一个 Windows 原生 WPF 桌面软件，用来按 `分镜号-版本号
 - 使用两阶段临时改名，避免覆盖文件
 - 记录非法文件、重复编号、临时文件残留和执行结果
 
+## 当前形态
+
+ReSeq 是一个 Windows 原生 WPF 桌面工具，适合给剪辑、短剧素材整理人员使用。它的核心工作方式是“打开文件夹、看缩略图矩阵、把新视频拖到目标位置、确认重命名”。
+
+普通 `dotnet publish --self-contained false` 生成的是框架依赖版本，对方电脑需要安装 .NET 8 Desktop Runtime。
+
+要发给没有开发环境的人，使用下面的便携版发布脚本。它会生成自包含版本，不要求对方预装 .NET。
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Publish-Portable.ps1
+```
+
+输出目录：
+
+```text
+artifacts\ReSeq-win-x64-portable\
+```
+
 ## 项目结构
 
 ```text
@@ -28,6 +46,10 @@ src/
   ReSeq.Core/     扫描、计划、安全重命名等核心逻辑
 tests/
   ReSeq.Tests/    无外部依赖的控制台测试
+tools/
+  Create-ReSeqIcon.ps1  生成应用图标
+scripts/
+  Publish-Portable.ps1  发布自包含便携版
 ```
 
 ## 运行
@@ -65,7 +87,7 @@ src\ReSeq\bin\Release\net8.0-windows\win-x64\publish\
 如果要给没有安装 .NET 8 Desktop Runtime 的机器使用，可以改成自包含：
 
 ```powershell
-dotnet publish .\src\ReSeq\ReSeq.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+powershell -ExecutionPolicy Bypass -File .\scripts\Publish-Portable.ps1
 ```
 
 ## 重命名安全策略
