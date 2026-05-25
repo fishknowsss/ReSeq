@@ -18,10 +18,10 @@ namespace ReSeq;
 
 public partial class MainWindow : Window
 {
-    private const double TileWidth = 204;
-    private const double TileHeight = 172;
-    private const double ThumbnailWidth = 188;
-    private const double ThumbnailHeight = 106;
+    private const double TileWidth = 196;
+    private const double TileHeight = 164;
+    private const double ThumbnailWidth = 180;
+    private const double ThumbnailHeight = 102;
 
     private static readonly SolidColorBrush InkBrush = Brush("#17202B");
     private static readonly SolidColorBrush MutedBrush = Brush("#596779");
@@ -205,18 +205,18 @@ public partial class MainWindow : Window
             .GroupBy(item => (item.X, item.Y))
             .ToDictionary(group => group.Key, group => group.First());
 
-        WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(78) });
+        WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(72) });
         for (var y = 1; y <= maxY; y++)
         {
-            WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(18) });
-            WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(TileWidth + 16) });
+            WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(16) });
+            WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(TileWidth + 14) });
         }
 
-        WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(44) });
+        WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40) });
         for (var x = 1; x <= maxX; x++)
         {
-            WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(18) });
-            WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(TileHeight + 16) });
+            WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(16) });
+            WorkspaceGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(TileHeight + 14) });
         }
 
         AddCornerHeader();
@@ -254,8 +254,8 @@ public partial class MainWindow : Window
         WorkspaceGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         WorkspaceGrid.Children.Add(new Border
         {
-            Width = 520,
-            Height = 260,
+            Width = 500,
+            Height = 230,
             Background = PanelBrush,
             BorderBrush = LineBrush,
             BorderThickness = new Thickness(1),
@@ -263,7 +263,7 @@ public partial class MainWindow : Window
             Child = new TextBlock
             {
                 Text = text,
-                FontSize = 18,
+                FontSize = 17,
                 Foreground = MutedBrush,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
@@ -278,17 +278,17 @@ public partial class MainWindow : Window
 
         var target = new DropTarget(DropTargetKind.EmptyCell, 1, 1, null);
         var border = CreateDropBorder(target);
-        border.Width = 560;
-        border.Height = 320;
+        border.Width = 500;
+        border.Height = 250;
         border.Background = PanelBrush;
         border.BorderBrush = LineBrush;
         border.BorderThickness = new Thickness(1);
-        border.CornerRadius = new CornerRadius(20);
+        border.CornerRadius = new CornerRadius(16);
         border.Effect = new DropShadowEffect
         {
-            BlurRadius = 24,
-            ShadowDepth = 8,
-            Opacity = 0.08,
+            BlurRadius = 18,
+            ShadowDepth = 5,
+            Opacity = 0.06,
             Color = Color.FromRgb(23, 32, 43)
         };
 
@@ -300,7 +300,7 @@ public partial class MainWindow : Window
         panel.Children.Add(new TextBlock
         {
             Text = "拖入一个视频",
-            FontSize = 22,
+            FontSize = 20,
             FontWeight = FontWeights.SemiBold,
             Foreground = InkBrush,
             HorizontalAlignment = HorizontalAlignment.Center
@@ -762,6 +762,7 @@ public partial class MainWindow : Window
     {
         _pendingPlan = plan;
         _previewItems.Clear();
+        PreviewEmptyText.Visibility = Visibility.Collapsed;
 
         foreach (var error in plan.Errors)
         {
@@ -795,6 +796,7 @@ public partial class MainWindow : Window
         _previewItems.Clear();
         ExecuteButton.IsEnabled = false;
         PlanStatusText.Text = "无计划";
+        PreviewEmptyText.Visibility = Visibility.Visible;
     }
 
     private void HighlightBorder(Border border, DropTarget target)
@@ -872,6 +874,7 @@ public partial class MainWindow : Window
     {
         var line = $"{DateTime.Now:HH:mm:ss}  {message}";
         _logItems.Add(line);
+        LogEmptyText.Visibility = Visibility.Collapsed;
         LogStatusText.Text = $"{_logItems.Count} 条";
         LogList.ScrollIntoView(line);
     }
@@ -890,6 +893,8 @@ public partial class MainWindow : Window
         UpdateSummary(0, 0, 0, 0);
         PlanStatusText.Text = "无计划";
         LogStatusText.Text = "就绪";
+        PreviewEmptyText.Visibility = Visibility.Visible;
+        LogEmptyText.Visibility = _logItems.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private static SolidColorBrush Brush(string color)

@@ -24,22 +24,10 @@ $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
 $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
 $graphics.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
 
-$background = [System.Drawing.Drawing2D.LinearGradientBrush]::new(
-    [System.Drawing.Rectangle]::new(0, 0, $size, $size),
-    [System.Drawing.Color]::FromArgb(22, 28, 36),
-    [System.Drawing.Color]::FromArgb(42, 55, 70),
-    45
-)
+$background = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(20, 29, 41))
 $graphics.FillRectangle($background, 0, 0, $size, $size)
 
-$accent = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(59, 130, 246))
-$softAccent = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(34, 197, 94))
-$white = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(246, 248, 251))
-$muted = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(116, 129, 148), 9)
-$gridPen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(90, 104, 124), 8)
-$accentPen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(59, 130, 246), 12)
-
-$outer = [System.Drawing.Rectangle]::new(30, 34, 196, 188)
+$outer = [System.Drawing.Rectangle]::new(28, 28, 200, 200)
 $path = [System.Drawing.Drawing2D.GraphicsPath]::new()
 $radius = 34
 $path.AddArc($outer.X, $outer.Y, $radius, $radius, 180, 90)
@@ -47,19 +35,19 @@ $path.AddArc($outer.Right - $radius, $outer.Y, $radius, $radius, 270, 90)
 $path.AddArc($outer.Right - $radius, $outer.Bottom - $radius, $radius, $radius, 0, 90)
 $path.AddArc($outer.X, $outer.Bottom - $radius, $radius, $radius, 90, 90)
 $path.CloseFigure()
-$graphics.FillPath([System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(242, 245, 249)), $path)
+$graphics.DrawPath([System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(239, 244, 251), 10), $path)
 
-$graphics.DrawLine($gridPen, 82, 54, 82, 202)
-$graphics.DrawLine($gridPen, 144, 54, 144, 202)
-$graphics.DrawLine($gridPen, 50, 96, 206, 96)
-$graphics.DrawLine($gridPen, 50, 150, 206, 150)
+$accentPen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(83, 143, 255), 9)
+$accentPen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
+$accentPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
+$graphics.DrawLine($accentPen, 70, 184, 186, 184)
 
-$graphics.FillRectangle($accent, 96, 110, 36, 26)
-$graphics.FillRectangle($softAccent, 158, 164, 34, 26)
-$graphics.DrawLine($accentPen, 50, 150, 206, 150)
-
-$font = [System.Drawing.Font]::new("Segoe UI Semibold", 42, [System.Drawing.FontStyle]::Bold, [System.Drawing.GraphicsUnit]::Pixel)
-$graphics.DrawString("R", $font, $white, 68, 45)
+$font = [System.Drawing.Font]::new("Segoe UI Semibold", 66, [System.Drawing.FontStyle]::Bold, [System.Drawing.GraphicsUnit]::Pixel)
+$white = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(248, 251, 255))
+$format = [System.Drawing.StringFormat]::new()
+$format.Alignment = [System.Drawing.StringAlignment]::Center
+$format.LineAlignment = [System.Drawing.StringAlignment]::Center
+$graphics.DrawString("X-Y", $font, $white, [System.Drawing.RectangleF]::new(26, 45, 204, 126), $format)
 
 $hIcon = $bitmap.GetHicon()
 try {

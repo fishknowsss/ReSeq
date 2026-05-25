@@ -7,7 +7,7 @@
         Height="860"
         MinWidth="1120"
         MinHeight="700"
-        Background="#EEF2F6"
+        Background="#F3F6FA"
         FontFamily="Segoe UI"
         TextOptions.TextFormattingMode="Display"
         UseLayoutRounding="True"
@@ -15,17 +15,16 @@
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <SolidColorBrush x:Key="InkBrush" Color="#17202B" />
-        <SolidColorBrush x:Key="MutedBrush" Color="#596779" />
-        <SolidColorBrush x:Key="SubtleBrush" Color="#7B8797" />
-        <SolidColorBrush x:Key="LineBrush" Color="#D7DEE8" />
+        <SolidColorBrush x:Key="MutedBrush" Color="#536173" />
+        <SolidColorBrush x:Key="SubtleBrush" Color="#7A8797" />
+        <SolidColorBrush x:Key="LineBrush" Color="#D8E0EA" />
         <SolidColorBrush x:Key="PanelBrush" Color="#FFFFFF" />
-        <SolidColorBrush x:Key="CanvasBrush" Color="#F5F7FA" />
-        <SolidColorBrush x:Key="AccentBrush" Color="#2563EB" />
-        <SolidColorBrush x:Key="AccentSoftBrush" Color="#E7F0FF" />
+        <SolidColorBrush x:Key="CanvasBrush" Color="#F3F6FA" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#2F6FED" />
 
         <Style x:Key="ToolbarButton" TargetType="Button">
-            <Setter Property="Height" Value="38" />
-            <Setter Property="MinWidth" Value="76" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="MinWidth" Value="72" />
             <Setter Property="Padding" Value="12,0" />
             <Setter Property="Margin" Value="0,0,8,0" />
             <Setter Property="Background" Value="#FFFFFF" />
@@ -58,7 +57,7 @@
                                 </Setter>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.45" />
+                                <Setter TargetName="Root" Property="Opacity" Value="0.48" />
                                 <Setter Property="Cursor" Value="Arrow" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -68,9 +67,9 @@
         </Style>
 
         <Style x:Key="PrimaryToolbarButton" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
-            <Setter Property="Background" Value="#2563EB" />
+            <Setter Property="Background" Value="#8FA8F4" />
             <Setter Property="Foreground" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#2563EB" />
+            <Setter Property="BorderBrush" Value="#8FA8F4" />
         </Style>
 
         <Style x:Key="IconText" TargetType="TextBlock">
@@ -80,42 +79,52 @@
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
+        <Style x:Key="MetricChip" TargetType="Border">
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Background" Value="#F6F8FB" />
+            <Setter Property="BorderBrush" Value="#E1E7F0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="999" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+        </Style>
+
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="17" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
         </Style>
 
-        <Style x:Key="ListBoxBase" TargetType="ListBox">
-            <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="Padding" Value="6" />
+        <Style x:Key="PanelList" TargetType="ListBox">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="0" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
             <Setter Property="ItemContainerStyle">
                 <Setter.Value>
                     <Style TargetType="ListBoxItem">
-                        <Setter Property="Padding" Value="8,6" />
-                        <Setter Property="Margin" Value="0,0,0,4" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0,0,0,6" />
                         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">
                                     <Border x:Name="Root"
-                                            Background="{TemplateBinding Background}"
+                                            Background="#F8FAFC"
                                             BorderBrush="#E2E8F0"
-                                            BorderThickness="0,0,0,1"
-                                            CornerRadius="6"
-                                            Padding="{TemplateBinding Padding}">
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="10,8">
                                         <ContentPresenter />
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Root" Property="Background" Value="#F8FAFC" />
+                                            <Setter TargetName="Root" Property="Background" Value="#F2F6FB" />
                                         </Trigger>
                                         <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="Root" Property="Background" Value="#E7F0FF" />
+                                            <Setter TargetName="Root" Property="Background" Value="#EAF1FF" />
+                                            <Setter TargetName="Root" Property="BorderBrush" Value="#B7C8F8" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -131,34 +140,34 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="88" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="34" />
+            <RowDefinition Height="32" />
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0"
                 Background="#FFFFFF"
                 BorderBrush="{StaticResource LineBrush}"
                 BorderThickness="0,0,0,1">
-            <Grid Margin="20,12">
+            <Grid Margin="22,12,28,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="172" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0"
                             Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            Margin="0,0,24,0">
+                            VerticalAlignment="Center">
                     <Border Width="46"
                             Height="46"
-                            Background="#17202B"
+                            Background="#141D29"
                             CornerRadius="12"
                             Margin="0,0,12,0">
-                        <Image Source="Assets/ReSeq.ico"
-                               Width="32"
-                               Height="32"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
+                        <TextBlock Text="X-Y"
+                                   Foreground="#FFFFFF"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="ReSeq"
@@ -167,53 +176,71 @@
                                    Foreground="{StaticResource InkBrush}" />
                         <TextBlock Text="短剧分镜版本管理"
                                    FontSize="13"
-                                   Foreground="{StaticResource MutedBrush}" />
+                                   Foreground="{StaticResource MutedBrush}"
+                                   Margin="1,1,0,0" />
                     </StackPanel>
                 </StackPanel>
 
-                <Grid Grid.Column="1" VerticalAlignment="Center">
+                <Grid Grid.Column="1"
+                      Margin="12,0,22,0"
+                      VerticalAlignment="Center">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="38" />
+                        <RowDefinition Height="30" />
                     </Grid.RowDefinitions>
+
                     <Border Grid.Row="0"
-                            Background="#F4F7FA"
-                            BorderBrush="#DDE5EF"
+                            Background="#F5F8FC"
+                            BorderBrush="#D9E2ED"
                             BorderThickness="1"
                             CornerRadius="9"
-                            Padding="12,8">
+                            Padding="12,0">
                         <TextBlock x:Name="FolderPathText"
                                    Text="未选择文件夹"
                                    Foreground="{StaticResource InkBrush}"
                                    FontSize="14"
+                                   VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis" />
                     </Border>
-                    <UniformGrid Grid.Row="1"
-                                 Columns="4"
-                                 Margin="0,8,0,0">
-                        <TextBlock x:Name="VideoCountText"
-                                   Text="视频 0"
-                                   Foreground="{StaticResource MutedBrush}"
-                                   FontSize="13" />
-                        <TextBlock x:Name="ShotCountText"
-                                   Text="镜头 0"
-                                   Foreground="{StaticResource MutedBrush}"
-                                   FontSize="13" />
-                        <TextBlock x:Name="VersionCountText"
-                                   Text="版本 0"
-                                   Foreground="{StaticResource MutedBrush}"
-                                   FontSize="13" />
-                        <TextBlock x:Name="IssueCountText"
-                                   Text="问题 0"
-                                   Foreground="{StaticResource MutedBrush}"
-                                   FontSize="13" />
-                    </UniformGrid>
+
+                    <StackPanel Grid.Row="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Bottom"
+                                Margin="0,8,0,0">
+                        <Border Style="{StaticResource MetricChip}">
+                            <TextBlock x:Name="VideoCountText"
+                                       Text="视频 0"
+                                       Foreground="{StaticResource MutedBrush}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                        <Border Style="{StaticResource MetricChip}">
+                            <TextBlock x:Name="ShotCountText"
+                                       Text="镜头 0"
+                                       Foreground="{StaticResource MutedBrush}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                        <Border Style="{StaticResource MetricChip}">
+                            <TextBlock x:Name="VersionCountText"
+                                       Text="版本 0"
+                                       Foreground="{StaticResource MutedBrush}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                        <Border Style="{StaticResource MetricChip}">
+                            <TextBlock x:Name="IssueCountText"
+                                       Text="问题 0"
+                                       Foreground="{StaticResource MutedBrush}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                    </StackPanel>
                 </Grid>
 
                 <StackPanel Grid.Column="2"
                             Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            Margin="22,0,0,0">
+                            VerticalAlignment="Center">
                     <Button x:Name="ChooseFolderButton"
                             Style="{StaticResource ToolbarButton}"
                             Click="ChooseFolderButton_Click">
@@ -241,6 +268,7 @@
                     </Button>
                     <Button x:Name="UndoButton"
                             Style="{StaticResource ToolbarButton}"
+                            Margin="0"
                             Click="UndoButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE7A7;" Style="{StaticResource IconText}" />
@@ -265,10 +293,10 @@
                             VerticalAlignment="Top"
                             Margin="22,18,0,0"
                             Background="#FFFFFF"
-                            BorderBrush="#D7DEE8"
+                            BorderBrush="#DDE5EF"
                             BorderThickness="1"
                             CornerRadius="999"
-                            Padding="12,7"
+                            Padding="13,7"
                             Panel.ZIndex="2">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE8E5;"
@@ -285,7 +313,7 @@
 
                     <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                   VerticalScrollBarVisibility="Auto"
-                                  Padding="18,64,18,18">
+                                  Padding="22,64,22,22">
                         <Grid x:Name="WorkspaceGrid"
                               AllowDrop="True"
                               DragOver="WorkspaceGrid_DragOver"
@@ -298,10 +326,11 @@
                     Background="#FFFFFF"
                     BorderBrush="{StaticResource LineBrush}"
                     BorderThickness="1,0,0,0">
-                <Grid Margin="18">
+                <Grid Margin="18,18,20,18">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="248" />
+                        <RowDefinition Height="245" />
+                        <RowDefinition Height="22" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
@@ -320,11 +349,26 @@
                                    FontSize="13"
                                    VerticalAlignment="Center" />
                     </Grid>
-                    <ListBox x:Name="PreviewList"
-                             Grid.Row="1"
-                             Style="{StaticResource ListBoxBase}" />
 
-                    <Grid Grid.Row="2" Margin="0,18,0,10">
+                    <Border Grid.Row="1"
+                            Background="#FFFFFF"
+                            BorderBrush="#E1E7F0"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="10">
+                        <Grid>
+                            <ListBox x:Name="PreviewList"
+                                     Style="{StaticResource PanelList}" />
+                            <TextBlock x:Name="PreviewEmptyText"
+                                       Text="拖入视频后在这里确认改名"
+                                       Foreground="{StaticResource SubtleBrush}"
+                                       FontSize="14"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="3" Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -338,9 +382,24 @@
                                    FontSize="13"
                                    VerticalAlignment="Center" />
                     </Grid>
-                    <ListBox x:Name="LogList"
-                             Grid.Row="3"
-                             Style="{StaticResource ListBoxBase}" />
+
+                    <Border Grid.Row="4"
+                            Background="#FFFFFF"
+                            BorderBrush="#E1E7F0"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="10">
+                        <Grid>
+                            <ListBox x:Name="LogList"
+                                     Style="{StaticResource PanelList}" />
+                            <TextBlock x:Name="LogEmptyText"
+                                       Text="选择文件夹后显示扫描结果"
+                                       Foreground="{StaticResource SubtleBrush}"
+                                       FontSize="14"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
                 </Grid>
             </Border>
         </Grid>
@@ -349,7 +408,7 @@
                 Background="#FFFFFF"
                 BorderBrush="{StaticResource LineBrush}"
                 BorderThickness="0,1,0,0">
-            <Grid Margin="16,0">
+            <Grid Margin="18,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
