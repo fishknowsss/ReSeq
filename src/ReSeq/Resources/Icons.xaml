@@ -1,0 +1,6 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Geometry x:Key="FolderIconGeometry">M3,6 L8,6 L10,8 L21,8 L21,18 L3,18 Z</Geometry>
+    <Geometry x:Key="VideoGridIconGeometry">M4,5 L10,5 L10,10 L4,10 Z M14,5 L20,5 L20,10 L14,10 Z M4,14 L10,14 L10,19 L4,19 Z M14,14 L20,14 L20,19 L14,19 Z</Geometry>
+    <Geometry x:Key="ArrowIconGeometry">M5,12 L16,12 M12,8 L16,12 L12,16</Geometry>
+</ResourceDictionary>

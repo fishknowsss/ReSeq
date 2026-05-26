@@ -1,0 +1,70 @@
+<UserControl x:Class="ReSeq.Controls.EmptyStateControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             AllowDrop="True"
+             Tag="{Binding Target, ElementName=Root}">
+    <Grid Background="#CCF7F9FC">
+        <Border Width="520"
+                MinHeight="260"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrushSoft}"
+                BorderThickness="1"
+                CornerRadius="14"
+                Padding="34"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="104" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Width="78"
+                        Height="78"
+                        Background="{StaticResource InkBrush}"
+                        CornerRadius="18"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top">
+                    <Grid>
+                        <Path Data="{StaticResource VideoGridIconGeometry}"
+                              Stretch="Uniform"
+                              Stroke="#A9C7FF"
+                              StrokeThickness="1.7"
+                              Fill="Transparent"
+                              Width="38"
+                              Height="38"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                        <Path Data="{StaticResource ArrowIconGeometry}"
+                              Stroke="#55D6C2"
+                              StrokeThickness="2.2"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              StrokeLineJoin="Round"
+                              Width="22"
+                              Height="22"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Bottom"
+                              Margin="0,0,12,12" />
+                    </Grid>
+                </Border>
+
+                <StackPanel Grid.Column="1"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Title, ElementName=Root}"
+                               Style="{StaticResource SectionTitleText}" />
+                    <TextBlock Text="选择文件夹，或把第一个视频拖到工作台。"
+                               Style="{StaticResource MutedText}"
+                               TextWrapping="Wrap"
+                               Margin="0,8,0,18" />
+                    <Button Content="{Binding ActionText, ElementName=Root}"
+                            Style="{StaticResource PrimaryCommandButton}"
+                            Width="104"
+                            HorizontalAlignment="Left"
+                            Click="ChooseButton_Click" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

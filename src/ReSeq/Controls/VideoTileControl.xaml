@@ -1,0 +1,90 @@
+<UserControl x:Class="ReSeq.Controls.VideoTileControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             DataContextChanged="Root_DataContextChanged"
+             PreviewMouseLeftButtonDown="Root_PreviewMouseLeftButtonDown"
+             PreviewMouseMove="Root_PreviewMouseMove">
+    <UserControl.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="删除"
+                      Click="DeleteMenuItem_Click" />
+        </ContextMenu>
+    </UserControl.ContextMenu>
+    <Border Style="{StaticResource VideoCard}"
+            AllowDrop="True">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="92" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Background="#DCE5F0"
+                    CornerRadius="6"
+                    ClipToBounds="True">
+                <Grid>
+                    <Border x:Name="Skeleton"
+                            Background="#DCE5F0">
+                        <Grid>
+                            <Rectangle Height="14"
+                                       Width="96"
+                                       Fill="#E8EEF6"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Bottom"
+                                       Margin="10,0,0,14" />
+                            <Rectangle Height="8"
+                                       Width="62"
+                                       Fill="#E8EEF6"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Bottom"
+                                       Margin="10,0,0,6" />
+                        </Grid>
+                    </Border>
+                    <Image x:Name="ThumbnailImage"
+                           Stretch="UniformToFill"
+                           Opacity="0" />
+                    <Border VerticalAlignment="Bottom"
+                            Height="24"
+                            Background="#CC111827">
+                        <DockPanel Margin="8,0">
+                            <TextBlock Text="{Binding Number}"
+                                       FontFamily="{StaticResource MonoFont}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="White"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding ExtensionText}"
+                                       DockPanel.Dock="Right"
+                                       FontFamily="{StaticResource MonoFont}"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="#CAD5E4"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Right" />
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1"
+                  Margin="2,7,2,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="{Binding FileName}"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           FontSize="12.5"
+                           FontWeight="SemiBold"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="1"
+                           Text="{Binding NumberText}"
+                           Foreground="{StaticResource TextTertiaryBrush}"
+                           FontSize="11.5"
+                           Margin="0,3,0,0" />
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

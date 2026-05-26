@@ -2,7 +2,7 @@
 
 ReSeq 是一个 Windows 原生 WPF 桌面软件，用来按 `分镜号-版本号` 管理短剧视频文件。
 
-它不是表单式批量重命名工具。用户选择视频文件夹后，软件会把 `1-1.mp4`、`1-2.mp4`、`2-1.mp4` 这类文件放进缩略图网格：行是 `X`，列是 `Y`。拖入新视频后，ReSeq 会根据投放位置生成重命名预览，确认后再执行安全重命名。
+它不是表单式批量重命名工具。用户选择视频文件夹后，软件会把 `1-1.mp4`、`1-2.mp4`、`2-1.mp4` 这类文件放进缩略图网格：行是 `X`，列是 `Y`。拖入新视频后，ReSeq 会根据投放位置生成重命名预览，再执行安全重命名。
 
 ## 功能
 
@@ -19,6 +19,16 @@ ReSeq 是一个 Windows 原生 WPF 桌面软件，用来按 `分镜号-版本号
 - 使用两阶段临时改名，避免覆盖文件
 - 记录非法文件、重复编号、临时文件残留和执行结果
 
+## 界面与品牌
+
+ReSeq 采用浅色 Windows 原生 WPF 界面：顶部命令栏、左侧分镜矩阵工作台、右侧执行预览和日志检查面板。应用图标由本仓库脚本生成，元素包含视频卡片矩阵、版本叠层和重排箭头。
+
+重新生成图标：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\Create-ReSeqIcon.ps1
+```
+
 ## 当前形态
 
 ReSeq 是一个 Windows 原生 WPF 桌面工具，适合给剪辑、短剧素材整理人员使用。它的核心工作方式是“打开文件夹、看缩略图矩阵、把新视频拖到目标位置、确认重命名”。
@@ -31,10 +41,13 @@ ReSeq 是一个 Windows 原生 WPF 桌面工具，适合给剪辑、短剧素材
 powershell -ExecutionPolicy Bypass -File .\scripts\Publish-Portable.ps1
 ```
 
-输出目录：
+输出：
 
 ```text
 artifacts\ReSeq-win-x64-portable\
+artifacts\ReSeq-win-x64-portable.zip
+artifacts\ReSeq.exe
+artifacts\ReSeq-版本号-win-x64.exe
 ```
 
 ## 项目结构
@@ -42,10 +55,10 @@ artifacts\ReSeq-win-x64-portable\
 ```text
 ReSeq.slnx
 src/
-  ReSeq/          WPF 图形界面、拖拽交互、缩略图加载
+  ReSeq/          WPF 图形界面、控件、ViewModel、拖拽交互、缩略图加载
   ReSeq.Core/     扫描、计划、安全重命名等核心逻辑
 tests/
-  ReSeq.Tests/    无外部依赖的控制台测试
+  ReSeq.Tests/    基于内存文件系统的控制台测试
 tools/
   Create-ReSeqIcon.ps1  生成应用图标
 scripts/
@@ -69,6 +82,10 @@ dotnet run --project .\tests\ReSeq.Tests\ReSeq.Tests.csproj
 - 插入新镜头行
 - 插入同镜头新版本
 - 拖到空单元格
+- 目标文件冲突
+- 临时文件残留
+- 重复编号
+- 两阶段重命名失败回滚
 
 ## 打包成 exe
 
@@ -94,7 +111,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Publish-Portable.ps1
 
 执行前先生成 `RenamePlan`，只展示预览，不改文件。
 
-确认执行后：
+点击执行后：
 
 1. 需要移动的旧文件先改成 `__temp_rename_{guid}.扩展名`
 2. 再从临时文件改成最终目标名

@@ -2,8 +2,10 @@ namespace ReSeq.Core.Models;
 
 public enum RenameOperationType
 {
-    ShiftExisting,
-    AddNewVideo
+    RenumberExisting,
+    MoveExisting,
+    AddNewVideo,
+    DeleteExisting
 }
 
 public sealed class RenameOperation
@@ -20,5 +22,6 @@ public sealed class RenameOperation
 
     public required RenameOperationType OperationType { get; init; }
 
-    public bool IsNoOp => string.Equals(SourcePath, TargetPath, StringComparison.OrdinalIgnoreCase);
+    public bool IsNoOp => OperationType != RenameOperationType.DeleteExisting &&
+        string.Equals(SourcePath, TargetPath, StringComparison.OrdinalIgnoreCase);
 }

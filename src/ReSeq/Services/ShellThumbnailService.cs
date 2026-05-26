@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
@@ -19,9 +20,11 @@ public sealed class ShellThumbnailService
 
     public ImageSource DefaultThumbnail { get; }
 
-    public async Task<ImageSource> GetThumbnailAsync(string filePath)
+    public async Task<ImageSource> GetThumbnailAsync(string filePath, int width = 180, int height = 100)
     {
-        if (_cache.TryGetValue(filePath, out var cached))
+        var stamp = File.Exists(filePath) ? File.GetLastWriteTimeUtc(filePath).Ticks : 0;
+        var cacheKey = $"{filePath}|{width}x{height}|{stamp}";
+        if (_cache.TryGetValue(cacheKey, out var cached))
         {
             return cached;
         }
@@ -30,7 +33,7 @@ public sealed class ShellThumbnailService
         {
             try
             {
-                return GetShellThumbnail(filePath, 180, 100);
+                return GetShellThumbnail(filePath, width, height);
             }
             catch
             {
@@ -39,8 +42,13 @@ public sealed class ShellThumbnailService
         });
 
         var result = thumbnail ?? DefaultThumbnail;
-        _cache[filePath] = result;
+        _cache[cacheKey] = result;
         return result;
+    }
+
+    public void ClearCache()
+    {
+        _cache.Clear();
     }
 
     private static Task<T?> RunStaAsync<T>(Func<T?> action)
@@ -86,7 +94,7 @@ public sealed class ShellThumbnailService
                 hBitmap,
                 IntPtr.Zero,
                 Int32Rect.Empty,
-                BitmapSizeOptions.FromEmptyOptions());
+                BitmapSizeOptions.FromWidthAndHeight(width, height));
             source.Freeze();
             return source;
         }

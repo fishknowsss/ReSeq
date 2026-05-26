@@ -17,4 +17,9 @@ public sealed class ExecutionResult
     public IReadOnlyList<string> Messages { get; }
 
     public IReadOnlyList<string> Errors { get; }
+
+    public static ExecutionResult FromMessages(bool success, IReadOnlyList<string> messages, IReadOnlyList<string> errors)
+    {
+        return new ExecutionResult(success, messages, errors);
+    }
 }

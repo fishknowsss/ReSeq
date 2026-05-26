@@ -1,0 +1,34 @@
+<UserControl x:Class="ReSeq.Controls.StatChipControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <Border Height="30"
+            Background="{StaticResource SurfaceMutedBrush}"
+            BorderBrush="{StaticResource BorderBrushSoft}"
+            BorderThickness="1"
+            CornerRadius="999"
+            Padding="10,0">
+        <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+            <TextBlock Text="{Binding Label, ElementName=Root}"
+                       Style="{StaticResource CaptionText}"
+                       Margin="0,0,6,0" />
+            <TextBlock x:Name="ValueText"
+                       Text="{Binding Value, ElementName=Root}"
+                       FontFamily="{StaticResource MonoFont}"
+                       FontSize="13"
+                       FontWeight="SemiBold">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsWarning, ElementName=Root}" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </StackPanel>
+    </Border>
+</UserControl>
